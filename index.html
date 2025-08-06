@@ -28,3 +28,84 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Onboarding</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container mt-5">
+        <div id="alert-container"></div>
+        <h1>Onboarding Form</h1>
+        <form id="onboardingForm">
+            <div class="form-group">
+                <label for="firstname">Full Name</label>
+                <input type="text" class="form-control" id="firstname" name="firstname" required>
+            </div>
+            <div class="form-group">
+                <label for="lastname">Last Name</label>
+                <input type="text" class="form-control" id="lastname" name="lastname" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <button type="submit" class="btn btn-success">Submit</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("onboardingForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const form = event.target;
+
+            const formData = {
+                firstname: form.firstname.value,
+                lastname: form.lastname.value,
+                email: form.email.value,
+            };
+
+            try {
+                const response = await fetch("https://ed72ce7a045de8de9cf4f1761e5aa3.1e.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1f9a71ea18ea4e5285c5fa10783274fe/triggers/manual/paths/invoke/?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=ovhKSG3KUgHz_OD09JJzXFX7HtQ2_L-DGmWjXcgt7-E", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    showAlert("Successfully submitted the form.", "success");
+                    setFormToViewMode(form);
+                } else {
+                    showAlert("Failed to submit the form.", "danger");
+                }
+            } catch (error) {
+                showAlert("Failed to submit the form.", "danger");
+            }
+        });
+
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById("alert-container");
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type}" role="alert">
+                    ${message}
+                </div>
+            `;
+        }
+
+        function setFormToViewMode(form) {
+            Array.from(form.elements).forEach(element => {
+                if (element.tagName.toLowerCase() !== "button") {
+                    element.disabled = true;
+                }
+            });
+            form.querySelector("button[type='submit']").style.display = "none";
+        }
+    </script>
+</body>
+</html>
